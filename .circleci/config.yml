@@ -2,16 +2,27 @@ version: 2.1
 
 jobs:
 
-  build-x86:
+  multi-arch-build:
     machine:
       image: cimg/node:18.4.0
-    resource_class: x86.medium
+    resource_class: arm.medium
     steps:
-      - checkout
-      - aws-ecr/build-and-push-image:
-          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          region: ${AWS_DEFAULT_REGION}
-          tag: "${CIRCLE_SHA1}"
+      - setup_remote_docker:
+          version: 20.10.14
+      - deploy:
+          name: "Upload container to registry"
+          command: |
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            docker context create multi-arch-build
+            docker buildx create --use multi-arch-build --platform linux/arm64/v8,linux/amd64
+            docker buildx build --push --platform linux/arm64/v8,linux/amd64
 
-
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - multi-arch-build
+#      - upload-manifest:
+#          requires:
+#            - build-arm
+#            - build-x86
