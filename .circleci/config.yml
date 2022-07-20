@@ -4,14 +4,15 @@ jobs:
 
   multi-arch-build:
     docker:
-      - image: cimg/python:3.8.2
+      - image: cimg/python:3.6.1
     environment:
       AWS_DEFAULT_OUTPUT: json
     resource_class: arm.medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
+      - setup_remote_docker
+      - attach_workspace:
+          at: workspace
       - run:
           name: Setup common environment variables
           command: |
