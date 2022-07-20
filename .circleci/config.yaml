@@ -1,0 +1,56 @@
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.2
+jobs:
+
+  build-x86:
+    machine:
+      image: cimg/python:3.8.2
+    resource_class: x86.medium
+    steps:
+      - checkout
+      - aws-ecr/build-and-push-image:
+          name: "upload x86 image"
+          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          region: ${AWS_DEFAULT_REGION}
+          tag: "${CIRCLE_SHA1}"
+
+  build-arm:
+    machine:
+      image: cimg/python:3.8.2
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - aws-ecr/build-and-push-image:
+          name: "upload arm image"
+          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          region: ${AWS_DEFAULT_REGION}
+          tag: "${CIRCLE_SHA1}"
+
+  upload-manifest:
+    docker:
+      - image: cimg/python:3.8.2
+    steps:
+      - checkout
+      - deploy:
+          name: "Upload manifest to registry"
+          command: |
+            set -eu
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            docker manifest create ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1} \
+                                   ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:arm-${CIRCLE_SHA1} \
+                                   ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:x86-${CIRCLE_SHA1}
+            docker manifest push 513849602691.dkr.ecr.us-east-2.amazonaws.com/hello-world:${CIRCLE_SHA1}
+
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - build-arm
+      - build-x86
+      - upload-manifest:
+          requires:
+            - build-arm
+            - build-x86
