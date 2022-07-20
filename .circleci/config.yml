@@ -6,7 +6,7 @@ orbs:
 jobs:
 
   aws-cli-example:
-    executor: aws-client-default
+    executor: aws-cli/-default
     steps:
       - checkout
       - run: aws s3 ls
