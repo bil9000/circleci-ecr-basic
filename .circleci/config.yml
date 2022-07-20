@@ -24,8 +24,8 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - aws-cli-example:
-          context: aws
+      - aws-cli/setup:
+          profile-name: default
       - run: aws s3 ls
       - attach_workspace:
           at: workspace
@@ -61,7 +61,7 @@ jobs:
 
 workflows:
   version: 2
-  deploy:
+  multi-arch:
     jobs:
 #      - aws-cli-example
       - multi-arch-build
