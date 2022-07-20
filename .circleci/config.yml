@@ -37,7 +37,7 @@ jobs:
       - deploy:
           name: "Upload container to registry"
           command: |
-            eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+            eval $(aws ecr get-login --region $AWS_DEFAULT_REGION | docker login --username --password-stdin $ECR_REPOSITORY_NAME)
             docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:arm .
             docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$arm
 
