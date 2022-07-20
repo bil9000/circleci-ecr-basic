@@ -5,15 +5,35 @@ jobs:
   multi-arch-build:
     docker:
       - image: cimg/python:3.8.2
+    environment:
+      AWS_DEFAULT_OUTPUT: json
     resource_class: arm.medium
     steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run:
+          name: Setup common environment variables
+          command: |
+            echo 'export ECR_REPOSITORY_NAME="${AWS_RESOURCE_NAME_PREFIX}"' >> $BASH_ENV
+            echo 'export FULL_IMAGE_NAME="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:${CIRCLE_SHA1}"' >> $BASH_ENV
+            echo 'export ECR_REPOSITORY_NAME="${AWS_RESOURCE_NAME_PREFIX}"' >> $BASH_ENV
+            echo 'export ECS_CLUSTER_NAME="${AWS_RESOURCE_NAME_PREFIX}-cluster"' >> $BASH_ENV
+            echo 'export ECS_SERVICE_NAME="${AWS_RESOURCE_NAME_PREFIX}-service"' >> $BASH_ENV
+      - run:
+          name: Install awscli
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
       - deploy:
           name: "Upload container to registry"
           command: |
             export DOCKER_CLI_EXPERIMENTAL=enabled
             docker context create multi-arch-build
             docker buildx create --use multi-arch-build --platform linux/arm64/v8,linux/amd64
-            docker buildx build --push --platform linux/arm64/v8,linux/amd64
+            eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+            docker buildx build --push --platform linux/arm64/v8,linux/amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1
 
 workflows:
   version: 2
