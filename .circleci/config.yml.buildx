@@ -1,0 +1,61 @@
+version: 2.1
+
+orbs: 
+  aws-cli: circleci/aws-cli@3.1.1
+
+jobs:
+
+  multi-arch-build:
+    docker:
+      - image: cimg/python:3.8.2
+    environment:
+      AWS_DEFAULT_OUTPUT: json
+    resource_class: arm.large
+    steps:
+      - checkout
+      - setup_remote_docker
+      - aws-cli/setup:
+          profile-name: default
+      - run: aws s3 ls
+      - attach_workspace:
+          at: workspace
+      - restore_cache:
+          key: v1-{{ checksum "requirements.txt" }}
+      - run:
+          name: Install awscli
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - save_cache:
+          key: v1-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv"
+      - run:
+          name: Setup common environment variables
+          command: |
+            echo 'export ECR_REPOSITORY_NAME="${AWS_RESOURCE_NAME_PREFIX}"' >> $BASH_ENV
+            echo 'export FULL_IMAGE_NAME="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:${CIRCLE_SHA1}"' >> $BASH_ENV
+            echo 'export ECR_REPOSITORY_NAME="${AWS_RESOURCE_NAME_PREFIX}"' >> $BASH_ENV
+            echo 'export ECS_CLUSTER_NAME="${AWS_RESOURCE_NAME_PREFIX}-cluster"' >> $BASH_ENV
+            echo 'export ECS_SERVICE_NAME="${AWS_RESOURCE_NAME_PREFIX}-service"' >> $BASH_ENV
+            aws ec2 describe-regions
+      - deploy:
+          name: "Upload container to registry"
+          command: |
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            docker context create multi-arch-build
+            aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 513849602691.dkr.ecr.us-east-2.amazonaws.com
+            docker buildx create --use multi-arch-build --platform linux/arm64/v8,linux/amd64
+            docker buildx build --push --platform linux/arm64/v8,linux/amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 -t $CIRCLE_SHA1
+
+workflows:
+  version: 2
+  multi-arch:
+    jobs:
+#      - aws-cli-example
+      - multi-arch-build
+#      - upload-manifest:
+#          requires:
+#            - build-arm
+#            - build-x86
