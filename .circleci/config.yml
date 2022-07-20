@@ -19,16 +19,14 @@ jobs:
             echo 'export ECR_REPOSITORY_NAME="${AWS_RESOURCE_NAME_PREFIX}"' >> $BASH_ENV
             echo 'export FULL_IMAGE_NAME="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:${CIRCLE_SHA1}"' >> $BASH_ENV
             echo 'export ECR_REPOSITORY_NAME="${AWS_RESOURCE_NAME_PREFIX}"' >> $BASH_ENV
-            echo 'export ECS_CLUSTER_NAME="${AWS_RESOURCE_NAME_PREFIX}-cluster"' >> $BASH_ENV
-            echo 'export ECS_SERVICE_NAME="${AWS_RESOURCE_NAME_PREFIX}-service"' >> $BASH_ENV
             aws ec2 describe-regions
       - deploy:
           name: "Upload container to registry"
           command: |
             aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 513849602691.dkr.ecr.us-east-2.amazonaws.com
-            docker build -t wtf .
-            docker tag wtf:latest 513849602691.dkr.ecr.us-east-2.amazonaws.com/wtf:latest
-            docker push 513849602691.dkr.ecr.us-east-2.amazonaws.com/wtf:latest
+            docker build -t arm-$CIRCLE_SHA1 .
+            docker tag $ECR_REPOSITORY_NAME:arm-$CIRCLE_SHA1 513849602691.dkr.ecr.us-east-2.amazonaws.com/$ECR_REPOSITORY_NAME:arm-$CIRCLE_SHA1
+            docker push 513849602691.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:arm-$CIRCLE_SHA1
 
 #  x86-build:
 #    machine:
