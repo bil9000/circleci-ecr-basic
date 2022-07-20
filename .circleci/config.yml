@@ -5,7 +5,6 @@ orbs:
 
 
 jobs:
-
   arm-build:
     machine:
       image: ubuntu-2004:current
@@ -13,11 +12,14 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - aws-ecr/build_and_push_image:
-          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          region: ${AWS_DEFAULT_REGION}
-          tag: "arm-${CIRCLE_SHA1}"
+      - aws-cli/setup:
+          profile-name: default
+      - run: aws s3 ls
+#      - aws-ecr/build_and_push_image:
+#          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+#          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+#          region: ${AWS_DEFAULT_REGION}
+#          tag: "arm-${CIRCLE_SHA1}"
 
 #  x86-build:
 #    machine:
