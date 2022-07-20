@@ -4,7 +4,7 @@ jobs:
 
   multi-arch-build:
     machine:
-      image: cimg/node:18.4.0
+      image: cimg/python:3.8.2
     resource_class: arm.medium
     steps:
       - deploy:
