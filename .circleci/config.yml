@@ -16,14 +16,11 @@ jobs:
       - restore_cache:
           key: v1-{{ checksum "requirements.txt" }}
       - run:
-          name: "install python3"
-          command: |
-            sudo apt-get install python3
-      - run:
           name: Install awscli
           command: |
-            python3 version
-            pip install -r requirements.txt
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - save_cache:
           key: v1-{{ checksum "requirements.txt" }}
           paths:
