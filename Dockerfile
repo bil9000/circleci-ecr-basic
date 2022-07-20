@@ -1,1 +1,1 @@
-FROM cimg/node:1.18.0
+FROM cimg/node:18.4.0
