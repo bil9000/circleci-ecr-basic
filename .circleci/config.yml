@@ -45,6 +45,7 @@ workflows:
   version: 2
   deploy:
     jobs:
+      - aws-cli-example
       - multi-arch-build
 #      - upload-manifest:
 #          requires:
