@@ -5,11 +5,14 @@ orbs:
 
 jobs:
 
+
   aws-cli-example:
     executor: aws-cli/default
     steps:
       - checkout
-      - run: aws s3 ls
+      - aws-cli/setup:
+          profile-name: example
+      - run: echo "Run your code here"
 
 
   multi-arch-build:
