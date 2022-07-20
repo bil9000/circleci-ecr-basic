@@ -12,7 +12,7 @@ jobs:
       - checkout
       - aws-cli/setup:
           profile-name: example
-      - run: echo "Run your code here"
+      - run: aws s3 ls
 
 
   multi-arch-build:
