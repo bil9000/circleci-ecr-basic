@@ -4,7 +4,7 @@ jobs:
 
   multi-arch-build:
     docker:
-      - image: cimg/python:3.6.1
+      - image: cimg/python:3.8.2
     environment:
       AWS_DEFAULT_OUTPUT: json
     resource_class: arm.medium
