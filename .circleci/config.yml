@@ -8,7 +8,7 @@ jobs:
   arm-build:
     machine:
       image: ubuntu-2004:current
-    resource_class: arm.large
+    resource_class: arm.medium
     steps:
       - checkout
       - aws-ecr/build_and_push_image:
@@ -20,17 +20,14 @@ jobs:
   x86-build:
     machine:
       image: ubuntu-2004:current
-    resource_class: x86.large
+    resource_class: x86.medium
     steps:
       - checkout
       - aws-ecr/build_and_push_image:
           account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           region: ${AWS_DEFAULT_REGION}
-          tag: "arm-${CIRCLE_SHA1}"
-
-
-
+          tag: "x86-${CIRCLE_SHA1}"
 
 workflows:
   version: 2
@@ -38,8 +35,3 @@ workflows:
     jobs:
       - arm-build
       - x86-build
-#      - multi-arch-build
-#      - upload-manifest:
-#          requires:
-#            - build-arm
-#            - build-x86
