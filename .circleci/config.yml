@@ -24,7 +24,7 @@ jobs:
           name: "Upload container to registry"
           command: |
             aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 513849602691.dkr.ecr.us-east-2.amazonaws.com
-            docker build -t wtf -t arm:go .
+            docker build -t wtf -t arm:bingo .
             docker tag wtf:latest 513849602691.dkr.ecr.us-east-2.amazonaws.com/wtf:latest
             docker push 513849602691.dkr.ecr.us-east-2.amazonaws.com/wtf:latest
 
