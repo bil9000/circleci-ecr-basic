@@ -6,13 +6,13 @@ orbs:
 jobs:
 
 
-  aws-cli-example:
-    executor: aws-cli/default
-    steps:
-      - checkout
-      - aws-cli/setup:
-          profile-name: example
-      - run: aws s3 ls
+#  aws-cli-example:
+#    executor: aws-cli/default
+#    steps:
+#      - checkout
+#      - aws-cli/setup:
+#          profile-name: example
+#      - run: aws s3 ls
 
 
   multi-arch-build:
@@ -23,9 +23,11 @@ jobs:
     resource_class: arm.large
     steps:
       - checkout
-#      - setup_remote_docker
-#      - attach_workspace:
-#          at: workspace
+      - setup_remote_docker
+      - attach_workspace:
+          at: workspace
+      - restore_cache:
+          key: v1-{{ checksum "requirements.txt" }}
       - run:
           name: Setup common environment variables
           command: |
@@ -48,8 +50,8 @@ workflows:
   version: 2
   deploy:
     jobs:
-      - aws-cli-example
-#      - multi-arch-build
+#      - aws-cli-example
+      - multi-arch-build
 #      - upload-manifest:
 #          requires:
 #            - build-arm
