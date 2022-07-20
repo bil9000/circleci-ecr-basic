@@ -5,9 +5,19 @@ orbs:
 
 jobs:
 
-  arm-build:
-    machine:
-      image: ubuntu-2004:current
+
+#  aws-cli-example:
+#    executor: aws-cli/default
+#    steps:
+#      - checkout
+#      - aws-cli/setup:
+#          profile-name: example
+#      - run: aws s3 ls
+
+
+  multi-arch-build:
+    docker:
+      - image: cimg/python:3.8.2
     environment:
       AWS_DEFAULT_OUTPUT: json
     resource_class: arm.large
@@ -40,17 +50,18 @@ jobs:
       - deploy:
           name: "Upload container to registry"
           command: |
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            docker context create multi-arch-build
+            docker buildx create --use multi-arch-build --platform linux/arm64/v8,linux/amd64
             eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-            docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 .
-            docker push -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 .
-
+            docker buildx build --push --platform linux/arm64/v8,linux/amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 -t $CRICLE_SHA1
 
 workflows:
   version: 2
   deploy:
     jobs:
-      - arm-build
-#      - multi-arch-build
+#      - aws-cli-example
+      - multi-arch-build
 #      - upload-manifest:
 #          requires:
 #            - build-arm
