@@ -1,0 +1,1 @@
+FROM cimg/node:1.18.0
