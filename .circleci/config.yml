@@ -49,7 +49,7 @@ workflows:
   deploy:
     jobs:
       - aws-cli-example
-      - multi-arch-build
+#      - multi-arch-build
 #      - upload-manifest:
 #          requires:
 #            - build-arm
