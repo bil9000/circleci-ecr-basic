@@ -16,8 +16,13 @@ jobs:
       - restore_cache:
           key: v1-{{ checksum "requirements.txt" }}
       - run:
+          name: "install python3"
+          command: |
+            sudo apt-get install python3
+      - run:
           name: Install awscli
           command: |
+            python3 version
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
@@ -38,8 +43,8 @@ jobs:
           name: "Upload container to registry"
           command: |
             eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-            docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 .
-            docker push -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 .
+            docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:arm-$CIRCLE_SHA1 .
+            docker push -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$arm-CIRCLE_SHA1 .
 
 
 workflows:
