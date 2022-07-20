@@ -3,8 +3,8 @@ version: 2.1
 jobs:
 
   multi-arch-build:
-    machine:
-      image: cimg/python:3.8.2
+    docker:
+      - image: cimg/python:3.8.2
     resource_class: arm.medium
     steps:
       - deploy:
