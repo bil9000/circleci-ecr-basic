@@ -13,9 +13,9 @@ jobs:
     resource_class: arm.medium
     steps:
       - checkout
-      - setup_remote_docker
-      - attach_workspace:
-          at: workspace
+#      - setup_remote_docker
+#      - attach_workspace:
+#          at: workspace
       - run:
           name: Setup common environment variables
           command: |
