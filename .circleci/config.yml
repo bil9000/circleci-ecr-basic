@@ -1,9 +1,7 @@
 version: 2.1
 
 orbs: 
-  aws-cli: circleci/aws-cli@3.1.1
   aws-ecr: circleci/aws-ecr@8.1.2
-
 
 jobs:
   arm-build:
@@ -12,12 +10,7 @@ jobs:
     resource_class: arm.medium
     steps:
       - checkout
-      - aws-cli/setup:
-          profile-name: default
-      - run: aws s3 ls
       - aws-ecr/build-and-push-image:
-#          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
-#          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           region: ${AWS_DEFAULT_REGION}
           tag: "arm-${CIRCLE_SHA1}"
@@ -29,7 +22,6 @@ jobs:
     steps:
       - checkout
       - aws-ecr/build-and-push-image:
-#          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           region: ${AWS_DEFAULT_REGION}
           tag: "x86-${CIRCLE_SHA1}"
