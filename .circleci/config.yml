@@ -47,7 +47,7 @@ jobs:
             docker context create multi-arch-build
             aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 513849602691.dkr.ecr.us-east-2.amazonaws.com
             docker buildx create --use multi-arch-build --platform linux/arm64/v8,linux/amd64
-            docker buildx build --push --platform linux/arm64/v8,linux/amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 --t $CRICLE_SHA1
+            docker buildx build --push --platform linux/arm64/v8,linux/amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY_NAME:$CIRCLE_SHA1 
 
 workflows:
   version: 2
