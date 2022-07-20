@@ -7,8 +7,6 @@ jobs:
       image: cimg/node:18.4.0
     resource_class: arm.medium
     steps:
-      - setup_remote_docker:
-          version: 20.10.14
       - deploy:
           name: "Upload container to registry"
           command: |
