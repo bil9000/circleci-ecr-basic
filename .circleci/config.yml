@@ -16,7 +16,8 @@ jobs:
           profile-name: default
       - run: aws s3 ls
       - aws-ecr/build-and-push-image:
-          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+#          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
+#          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           region: ${AWS_DEFAULT_REGION}
           tag: "arm-${CIRCLE_SHA1}"
