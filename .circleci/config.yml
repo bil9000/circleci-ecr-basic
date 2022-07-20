@@ -5,6 +5,13 @@ orbs:
 
 jobs:
 
+  aws-cli-example:
+    executor: aws-client-default
+    steps:
+      - checkout
+      - run: aws s3 ls
+
+
   multi-arch-build:
     docker:
       - image: cimg/python:3.8.2
